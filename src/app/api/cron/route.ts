@@ -1,41 +1,39 @@
-// app/api/cron/route.ts
+// src/app/api/cron/route.ts
 import { NextResponse } from 'next/server';
 import { DateTime } from 'luxon';
-import { sql } from '@/lib/db';
+import { neon } from '@neondatabase/serverless';
 
-export const runtime = 'nodejs'; // or 'edge' — Node is fine here
+export const runtime = 'nodejs';
+
+type EntryRow = { id: string; value_text: string };
 
 export async function GET() {
-  // Cron timezone is always UTC; convert to NY and pick "yesterday"
-  const nowNY = DateTime.utc().setZone('America/New_York');
-  const targetDay = nowNY.minus({ days: 1 }).toISODate();
+  try {
+    const sql = neon(process.env.DATABASE_URL!);
 
-  const { rows } = await sql/*sql*/`
-    select id, value_text from entries
-    where submit_day = ${targetDay}
-    order by random()
-    limit 1
-  `;
+    const nowNY = DateTime.utc().setZone('America/New_York');
+    const targetDay = nowNY.minus({ days: 1 }).toISODate();
 
-  if (!rows[0]) return NextResponse.json({ ok: true, msg: 'No entries for day' });
+    // ✅ No generic here; cast the array result
+    const rows = (await sql/*sql*/`
+      select id, value_text
+      from entries
+      where submit_day = ${targetDay}
+      order by random()
+      limit 1
+    `) as EntryRow[];
 
-  // Kick off Replicate (async) with webhook back to this app
-  const entry = rows[0] as { id: string; value_text: string };
-  const base = process.env.NEXT_PUBLIC_BASE_URL!;
-  await fetch('https://api.replicate.com/v1/predictions', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${process.env.REPLICATE_API_TOKEN}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      // choose a model you like; SDXL is a solid default
-      model: 'stability-ai/sdxl',
-      input: { prompt: entry.value_text },
-      webhook: `${base}/api/replicate-webhook?entryId=${entry.id}`,
-      webhook_events_filter: ['completed'],
-    }),
-  });
+    if (!rows.length) {
+      return NextResponse.json({ ok: true, msg: 'No entries for day' });
+    }
 
-  return NextResponse.json({ ok: true, day: targetDay });
+    const entry = rows[0];
+    // TODO: fire Replicate using entry.value_text / entry.id
+
+    return NextResponse.json({ ok: true, day: targetDay, picked: entry.id });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error('cron error:', message);
+    return NextResponse.json({ ok: false, error: message }, { status: 500 });
+  }
 }

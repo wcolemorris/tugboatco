@@ -3,16 +3,15 @@
 import { sql } from '@/lib/db';
 import { DateTime } from 'luxon';
 import crypto from 'crypto';
+// optional: import { revalidatePath } from 'next/cache';
 
-export async function saveEntry(_: any, formData: FormData) {
+export async function saveEntry(formData: FormData): Promise<void> {
   const value = (formData.get('value') || '').toString().trim();
-  if (!value) return { ok: false, error: 'Please enter a value.' };
+  if (!value) return;
 
-  // America/New_York calendar day
   const nowNY = DateTime.now().setZone('America/New_York');
-  const submitDay = nowNY.toISODate(); // YYYY-MM-DD
+  const submitDay = nowNY.toISODate();
 
-  // very light anti-spam (optional)
   const ip = (formData.get('ip') || '').toString();
   const ua = (formData.get('ua') || '').toString();
   const ipHash = ip ? crypto.createHash('sha256').update(ip).digest('hex') : null;
@@ -22,5 +21,6 @@ export async function saveEntry(_: any, formData: FormData) {
     values (${value}, ${submitDay}, ${ipHash}, ${ua})
   `;
 
-  return { ok: true };
+  // optional: revalidate homepage after insert
+  // revalidatePath('/');
 }
