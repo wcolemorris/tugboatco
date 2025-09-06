@@ -22,10 +22,11 @@ export async function saveEntry(formData: FormData): Promise<void> {
     values (${value}, ${submitDay}, ${ipHash}, ${ua})
   `;
 
-   // 👇 Set a cookie so we know the user submitted today
-  cookies().set("submitted_day", submitDay, {
+   // ✅ cookies() gives you a mutable cookie jar in a Server Action
+  const cookieStore = cookies();
+  cookieStore.set("submitted_day", submitDay, {
     path: "/",
-    httpOnly: false, // client can read it
+    httpOnly: false,
     maxAge: 60 * 60 * 24, // 1 day
   });
 
