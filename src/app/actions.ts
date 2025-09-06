@@ -1,5 +1,6 @@
 'use server';
 
+import { cookies } from "next/headers";
 import { sql } from '@/lib/db';
 import { DateTime } from 'luxon';
 import crypto from 'crypto';
@@ -20,6 +21,13 @@ export async function saveEntry(formData: FormData): Promise<void> {
     insert into entries (value_text, submit_day, ip_hash, user_agent)
     values (${value}, ${submitDay}, ${ipHash}, ${ua})
   `;
+
+   // 👇 Set a cookie so we know the user submitted today
+  cookies().set("submitted_day", submitDay, {
+    path: "/",
+    httpOnly: false, // client can read it
+    maxAge: 60 * 60 * 24, // 1 day
+  });
 
   // optional: revalidate homepage after insert
   // revalidatePath('/');
