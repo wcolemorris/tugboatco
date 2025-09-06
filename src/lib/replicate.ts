@@ -1,16 +1,31 @@
-const MODEL_VERSION = "7762fd07"; 
-// 👆 replace with the actual version ID from replicate.com
+// src/lib/replicate.ts
 
-export async function createPrediction({ prompt, entryId, imageDay }: CreatePredictionArgs): Promise<void> {
+export type CreatePredictionArgs = {
+  prompt: string;
+  entryId: string;
+  imageDay: string; // YYYY-MM-DD (America/New_York)
+};
+
+// TODO: replace with the actual version ID from replicate.com → "Run with API" panel
+const MODEL_VERSION = "7762fd07";
+
+export async function createPrediction(
+  { prompt, entryId, imageDay }: CreatePredictionArgs
+): Promise<void> {
   const token = process.env.REPLICATE_API_TOKEN;
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   if (!token) throw new Error("REPLICATE_API_TOKEN is not set");
   if (!baseUrl) throw new Error("NEXT_PUBLIC_BASE_URL is not set");
+  if (!MODEL_VERSION || MODEL_VERSION.startsWith("YOUR_")) {
+    throw new Error("MODEL_VERSION is not set to a valid Replicate version ID");
+  }
 
   const body = {
-    version: MODEL_VERSION,     // ✅ use version
+    version: MODEL_VERSION, // ✅ Replicate’s API requires a version
     input: { prompt },
-    webhook: `${baseUrl}/api/replicate-webhook?entryId=${encodeURIComponent(entryId)}&imageDay=${encodeURIComponent(imageDay)}`,
+    webhook: `${baseUrl}/api/replicate-webhook?entryId=${encodeURIComponent(
+      entryId
+    )}&imageDay=${encodeURIComponent(imageDay)}`,
     webhook_events_filter: ["completed"],
   };
 
