@@ -12,11 +12,11 @@ export default async function Page() {
 
   return (
     <main className="mx-auto max-w-xl p-6 space-y-6">
-      <h1 className="text-3xl font-bold">Daily Image</h1>
-      <p>Enter anything. Each day, one entry is picked at random and turned into an AI image.</p>
+      <h1 className="text-3xl font-bold">Tugboat.co</h1>
+      <p>Enter anything. Each day, one entry is picked at random to generate the day's tugboat.</p>
 
       <form action={saveEntry} className="flex flex-col gap-3 max-w-xl">
-        <input name="value" placeholder="Describe today's idea..." className="border rounded p-2" required />
+        <input name="value" placeholder="Describe tomorrow's tugboat..." className="border rounded p-2" required />
         <input type="hidden" name="ip" value="" />
         <input type="hidden" name="ua" value="" />
         <button className="border rounded px-4 py-2 w-fit">Submit</button>
