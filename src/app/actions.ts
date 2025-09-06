@@ -1,17 +1,17 @@
 'use server';
 
-import { cookies } from "next/headers";
+import { cookies } from 'next/headers';
 import { sql } from '@/lib/db';
 import { DateTime } from 'luxon';
 import crypto from 'crypto';
-// optional: import { revalidatePath } from 'next/cache';
 
 export async function saveEntry(formData: FormData): Promise<void> {
   const value = (formData.get('value') || '').toString().trim();
   if (!value) return;
 
   const nowNY = DateTime.now().setZone('America/New_York');
-  const submitDay = nowNY.toISODate();
+  // ✅ always a string (yyyy-MM-dd)
+  const submitDay = nowNY.toFormat('yyyy-LL-dd');
 
   const ip = (formData.get('ip') || '').toString();
   const ua = (formData.get('ua') || '').toString();
@@ -22,14 +22,11 @@ export async function saveEntry(formData: FormData): Promise<void> {
     values (${value}, ${submitDay}, ${ipHash}, ${ua})
   `;
 
-   // ✅ cookies() gives you a mutable cookie jar in a Server Action
-  const cookieStore = await cookies();
-  cookieStore.set("submitted_day", submitDay, {
-    path: "/",
+  // In Server Actions, cookies() may be async in your setup → await it
+  const jar = await cookies();
+  jar.set('submitted_day', submitDay, {
+    path: '/',
     httpOnly: false,
     maxAge: 60 * 60 * 24, // 1 day
   });
-
-  // optional: revalidate homepage after insert
-  // revalidatePath('/');
 }

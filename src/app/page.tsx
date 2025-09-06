@@ -1,11 +1,10 @@
-// src/app/page.tsx
-import { cookies } from "next/headers";
-import { sql } from "@/lib/db";
-import { saveEntry } from "./actions";
-import Image from "next/image";
-import { DateTime } from "luxon";
+import { cookies } from 'next/headers';
+import { sql } from '@/lib/db';
+import { saveEntry } from './actions';
+import Image from 'next/image';
+import { DateTime } from 'luxon';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 export default async function Page() {
   const rows = (await sql/*sql*/`
@@ -15,23 +14,20 @@ export default async function Page() {
   `) as { image_url: string }[];
   const imageUrl = rows[0]?.image_url;
 
-  // Get today's date in NY
-  const todayNY = DateTime.now().setZone("America/New_York").toISODate();
-
-  // Read the cookie from request
-  const submittedDay = cookies().get("submitted_day")?.value;
+  const todayNY = DateTime.now().setZone('America/New_York').toFormat('yyyy-LL-dd'); // ✅ string
+  const submittedDay = (await cookies()).get('submitted_day')?.value;
   const alreadySubmitted = submittedDay === todayNY;
 
   return (
     <main className="mx-auto max-w-xl p-6 space-y-6">
       <h1 className="text-3xl font-bold">Tugboat.co</h1>
-      <p>Enter anything. Each day, one entry is picked at random to generate tomorrow&apos;s tugboat tows.</p>
+      <p>Enter anything. Each day, one entry is picked at random to for what get&pos;s tugged next.</p>
 
       {!alreadySubmitted && (
         <form action={saveEntry} className="flex flex-col gap-3 max-w-xl">
           <input
             name="value"
-            placeholder="Describe what tomorrow&apos;s tugboat is tugging..."
+            placeholder="Describe what tomorrow&apos;s tugboat should tow..."
             className="border rounded p-2"
             required
           />
