@@ -21,7 +21,7 @@ export default async function Page() {
   return (
     <main className="mx-auto max-w-xl p-6 space-y-6">
       <h1 className="text-3xl font-bold">Tugboat.co</h1>
-      <p>Enter anything. Each day, one entry is picked at random to for what gets tugged next.</p>
+      <p>Enter anything. Each day, one entry is picked at random for what gets tugged next.</p>
 
       {!alreadySubmitted && (
         <form action={saveEntry} className="flex flex-col gap-3 max-w-xl">
