@@ -23,7 +23,7 @@ export async function saveEntry(formData: FormData): Promise<void> {
   `;
 
    // ✅ cookies() gives you a mutable cookie jar in a Server Action
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   cookieStore.set("submitted_day", submitDay, {
     path: "/",
     httpOnly: false,
