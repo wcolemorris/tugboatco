@@ -1,3 +1,4 @@
+// src/app/api/cron/route.ts
 import { NextResponse } from "next/server";
 import { DateTime } from "luxon";
 import { neon } from "@neondatabase/serverless";
@@ -29,8 +30,12 @@ export async function GET() {
 
     const { id, value_text } = rows[0];
 
+    // Build the Stable Diffusion prompt
+    const cleaned = value_text.trim().replace(/\s+/g, " ");
+    const finalPrompt = `Generate an image of a tugboat pulling ${cleaned}`.slice(0, 300);
+
     await createPrediction({
-      prompt: value_text,
+      prompt: finalPrompt,
       entryId: id,
       imageDay: targetDay, // pass through to webhook
     });
