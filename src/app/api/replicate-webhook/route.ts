@@ -1,16 +1,20 @@
 import { NextResponse } from "next/server";
 import { put } from "@vercel/blob";
-import { DateTime } from "luxon";
 import { neon } from "@neondatabase/serverless";
 
 export const runtime = "nodejs";
 
-function pickOutputUrl(output: unknown): string | null {
+type ReplicateWebhookPayload = {
+  // Replicate sends the model output as either a single URL string
+  // or an array of URL strings, depending on the model.
+  output?: string | string[];
+  input?: { prompt?: string };
+};
+
+function pickOutputUrl(output: ReplicateWebhookPayload["output"]): string | null {
+  if (!output) return null;
   if (typeof output === "string") return output;
-  if (Array.isArray(output)) {
-    const first = output[0];
-    return typeof first === "string" ? first : null;
-  }
+  if (Array.isArray(output) && typeof output[0] === "string") return output[0]!;
   return null;
 }
 
@@ -18,13 +22,15 @@ export async function POST(req: Request) {
   try {
     const url = new URL(req.url);
     const entryId = url.searchParams.get("entryId");
-    const imageDay = url.searchParams.get("imageDay"); // from cron
+    const imageDay = url.searchParams.get("imageDay");
     if (!entryId || !imageDay) {
       return NextResponse.json({ ok: false, error: "missing entryId or imageDay" }, { status: 400 });
     }
 
-    const payload = await req.json().catch(() => ({}));
-    const outputUrl = pickOutputUrl((payload as any).output);
+    const payloadUnknown = await req.json();
+    const payload = payloadUnknown as ReplicateWebhookPayload;
+
+    const outputUrl = pickOutputUrl(payload.output);
     if (!outputUrl) {
       return NextResponse.json({ ok: false, error: "no output image url" }, { status: 400 });
     }
@@ -45,7 +51,7 @@ export async function POST(req: Request) {
 
     // Persist to Postgres
     const sql = neon(process.env.DATABASE_URL!);
-    const promptUsed: string = (payload as any)?.input?.prompt ?? "";
+    const promptUsed = payload.input?.prompt ?? "";
     await sql/*sql*/`
       insert into daily_images (image_day, entry_id, prompt_used, image_url)
       values (${imageDay}, ${entryId}, ${promptUsed}, ${blob.url})
