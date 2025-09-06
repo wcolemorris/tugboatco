@@ -14,14 +14,13 @@ export default async function Page() {
     <main className="mx-auto max-w-xl p-6 space-y-6">
       <h1 className="text-3xl font-bold">Tugboat.co</h1>
       <p>
-        Enter anything. Each day, one entry is picked at random to generate the
-        day&apos;s tugboat.
+        Enter anything and come back tomorrow to see what&apos;s getting tugged.
       </p>
 
       <form action={saveEntry} className="flex flex-col gap-3 max-w-xl">
         <input
           name="value"
-          placeholder="Describe tomorrow&apos;s tugboat..."
+          placeholder="Describe what should the tugboat tug next..."
           className="border rounded p-2"
           required
         />
