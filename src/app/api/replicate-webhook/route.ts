@@ -1,14 +1,15 @@
+// src/app/api/replicate-webhook/route.ts
 import { NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 import { neon } from "@neondatabase/serverless";
+import { revalidatePath } from "next/cache";
 
 export const runtime = "nodejs";
 
 type ReplicateWebhookPayload = {
-  // Replicate sends the model output as either a single URL string
-  // or an array of URL strings, depending on the model.
   output?: string | string[];
   input?: { prompt?: string };
+  status?: string;
 };
 
 function pickOutputUrl(output: ReplicateWebhookPayload["output"]): string | null {
@@ -27,8 +28,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, error: "missing entryId or imageDay" }, { status: 400 });
     }
 
-    const payloadUnknown = await req.json();
-    const payload = payloadUnknown as ReplicateWebhookPayload;
+    const payload = (await req.json()) as ReplicateWebhookPayload;
+
+    // Optional: ignore non-completed events defensively
+    if (payload.status && payload.status !== "succeeded" && payload.status !== "completed") {
+      return NextResponse.json({ ok: true, msg: `ignored status ${payload.status}` });
+    }
 
     const outputUrl = pickOutputUrl(payload.output);
     if (!outputUrl) {
@@ -49,7 +54,7 @@ export async function POST(req: Request) {
       addRandomSuffix: false,
     });
 
-    // Persist to Postgres
+    // Persist to Postgres (idempotent on image_day)
     const sql = neon(process.env.DATABASE_URL!);
     const promptUsed = payload.input?.prompt ?? "";
     await sql/*sql*/`
@@ -57,6 +62,9 @@ export async function POST(req: Request) {
       values (${imageDay}, ${entryId}, ${promptUsed}, ${blob.url})
       on conflict (image_day) do nothing
     `;
+
+    // 🔄 Make the homepage show the new image immediately
+    revalidatePath("/");
 
     return NextResponse.json({ ok: true, stored: blob.url });
   } catch (err) {
