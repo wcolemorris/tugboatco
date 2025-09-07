@@ -3,6 +3,7 @@ import { sql } from '@/lib/db';
 import { saveEntry } from './actions';
 import Image from 'next/image';
 import { DateTime } from 'luxon';
+import DelayedReveal from '@/components/DelayedReveal';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -129,15 +130,18 @@ export default async function Page() {
             </div>
           )}
 
-          {/* Caption: only when media is visible (i.e., submitted today) */}
+          {/* Caption: only when media is visible (i.e., submitted today).
+             Delay prompt + artist + time by ~5 seconds. */}
           {submittedToday && userValue && (
-            <div className="text-center">
-              <p className="text-gray-300">“{userValue}”</p>
-              <p className="text-sm text-gray-400">Artist: {artistText || 'Unknown'}</p>
-              {submittedPretty && (
-                <p className="text-sm text-gray-500">Submitted {submittedPretty}</p>
-              )}
-            </div>
+            <DelayedReveal delayMs={5000}>
+              <div className="text-center">
+                <p className="text-gray-300">“{userValue}”</p>
+                <p className="text-sm text-gray-400">Artist: {artistText || 'Unknown'}</p>
+                {submittedPretty && (
+                  <p className="text-sm text-gray-500">Submitted {submittedPretty}</p>
+                )}
+              </div>
+            </DelayedReveal>
           )}
         </div>
       )}
