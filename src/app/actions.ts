@@ -9,20 +9,23 @@ export async function saveEntry(formData: FormData): Promise<void> {
   const value = (formData.get('value') || '').toString().trim();
   if (!value) return;
 
+  // Optional artist field; default to "Unknown" if not provided/empty
+  const artistRaw = (formData.get('artist') || '').toString().trim();
+  const artist = artistRaw.length > 0 ? artistRaw.slice(0, 120) : 'Unknown';
+
   const nowNY = DateTime.now().setZone('America/New_York');
-  // ✅ always a string (yyyy-MM-dd)
-  const submitDay = nowNY.toFormat('yyyy-LL-dd');
+  const submitDay = nowNY.toFormat('yyyy-LL-dd'); // always a string
 
   const ip = (formData.get('ip') || '').toString();
   const ua = (formData.get('ua') || '').toString();
   const ipHash = ip ? crypto.createHash('sha256').update(ip).digest('hex') : null;
 
   await sql/*sql*/`
-    insert into entries (value_text, submit_day, ip_hash, user_agent)
-    values (${value}, ${submitDay}, ${ipHash}, ${ua})
+    insert into entries (value_text, artist_text, submit_day, ip_hash, user_agent)
+    values (${value}, ${artist}, ${submitDay}, ${ipHash}, ${ua})
   `;
 
-  // In Server Actions, cookies() may be async in your setup → await it
+  // Mark that the user has submitted today (used to show media & hide form)
   const jar = await cookies();
   jar.set('submitted_day', submitDay, {
     path: '/',

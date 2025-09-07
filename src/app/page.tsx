@@ -10,13 +10,16 @@ export const runtime = 'nodejs';
 type EntryRow = {
   image_url: string;
   value_text: string;
+  artist_text: string;
   submitted_at: string | Date;
 };
 
 export default async function Page() {
-  const sqlRows = (await sql/*sql*/`
+  // Load latest media + generating entry (includes artist)
+  const rows = (await sql/*sql*/`
     select di.image_url,
            e.value_text,
+           e.artist_text,
            e.submitted_at
     from daily_images di
     join entries e on di.entry_id = e.id
@@ -24,11 +27,12 @@ export default async function Page() {
     limit 1
   `) as EntryRow[];
 
-  const imageUrl = sqlRows[0]?.image_url;
-  const userValue = sqlRows[0]?.value_text;
-  const submittedAtRaw = sqlRows[0]?.submitted_at;
+  const imageUrl = rows[0]?.image_url ?? null;
+  const userValue = rows[0]?.value_text ?? null;
+  const artistText = rows[0]?.artist_text || 'Unknown';
+  const submittedAtRaw = rows[0]?.submitted_at ?? null;
 
-  // Pretty timestamp (NY time), robust to string | Date
+  // Pretty timestamp (NY time), robust for string | Date
   let submittedPretty: string | null = null;
   if (submittedAtRaw) {
     let iso: string | null = null;
@@ -41,11 +45,16 @@ export default async function Page() {
     }
   }
 
-  const todayNY = DateTime.now().setZone('America/New_York').toFormat('yyyy-LL-dd');
-  const submittedDay = (await cookies()).get('submitted_day')?.value;
-  const alreadySubmitted = submittedDay === todayNY;
+  // Cookie-based gating
+  const nowNY = DateTime.now().setZone('America/New_York');
+  const todayNY = nowNY.toFormat('yyyy-LL-dd');
+  const yesterdayNY = nowNY.minus({ days: 1 }).toFormat('yyyy-LL-dd');
 
-  // Detect if the media is a video (allowing querystrings)
+  const submittedCookie = (await cookies()).get('submitted_day')?.value;
+  const submittedToday = submittedCookie === todayNY;
+  const submittedYesterday = submittedCookie === yesterdayNY;
+
+  // Detect if media is a video (allow querystrings)
   const isVideo = !!imageUrl && /\.(mp4|webm)(\?|$)/i.test(imageUrl);
 
   return (
@@ -53,7 +62,11 @@ export default async function Page() {
       <h1 className="text-3xl font-bold">Tugboat.co</h1>
       <p>Enter anything and you might just pick what gets tugged next.</p>
 
-      {!alreadySubmitted && (
+      {/* FORM VISIBILITY RULES:
+          - If user has NOT submitted today → show the form.
+          - If user submitted yesterday (but not today) → also show the Artist field.
+          - After submission today → hide all inputs. */}
+      {!submittedToday && (
         <form action={saveEntry} className="flex flex-col gap-3 max-w-xl">
           <input
             name="value"
@@ -61,20 +74,29 @@ export default async function Page() {
             className="border rounded p-2"
             required
           />
+          {submittedYesterday && (
+            <input
+              name="artist"
+              placeholder="Artist (perk for yesterday’s tug!)"
+              className="border rounded p-2"
+            />
+          )}
           <button className="border rounded px-4 py-2 w-fit">Submit</button>
         </form>
       )}
 
-      {alreadySubmitted && (
+      {submittedToday && (
         <p className="italic text-gray-600">
-          Thanks for tugging. Check back tomorrow to tug again and see what we&apos;re pulling.
+          Thanks for tugging. Check back tomorrow to see what we&apos;re pulling and tug again.
         </p>
       )}
 
+      {/* MEDIA VISIBILITY RULES:
+          - Show media ONLY if user has submitted today.
+          - Otherwise, show the static sponsor block. */}
       {imageUrl && (
         <div className="space-y-3">
-          {alreadySubmitted ? (
-            // Reveal media after user has submitted today
+          {submittedToday ? (
             isVideo ? (
               <video
                 src={imageUrl}
@@ -97,7 +119,6 @@ export default async function Page() {
               />
             )
           ) : (
-            // Placeholder “sponsor” box until submission
             <div className="w-full rounded border bg-gray-50 p-6 text-center">
               <p className="font-medium">
                 Submit your tug to reveal today&apos;s pull.
@@ -108,18 +129,15 @@ export default async function Page() {
             </div>
           )}
 
-          {alreadySubmitted && userValue && (
-            <p className="text-center text-gray-300">
-              “{userValue}”
+          {/* Caption: only when media is visible (i.e., submitted today) */}
+          {submittedToday && userValue && (
+            <div className="text-center">
+              <p className="text-gray-300">“{userValue}”</p>
+              <p className="text-sm text-gray-400">Artist: {artistText || 'Unknown'}</p>
               {submittedPretty && (
-                <>
-                  <br />
-                  <span className="text-sm text-gray-500">
-                    Submitted {submittedPretty}
-                  </span>
-                </>
+                <p className="text-sm text-gray-500">Submitted {submittedPretty}</p>
               )}
-            </p>
+            </div>
           )}
         </div>
       )}
