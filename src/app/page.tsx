@@ -6,6 +6,12 @@ import { DateTime } from 'luxon';
 
 export const dynamic = 'force-dynamic';
 
+type EntryRow = {
+  image_url: string;
+  value_text: string;
+  submitted_at: string | Date;
+};
+
 export default async function Page() {
   // Fetch latest image + the entry that generated it
   const rows = (await sql/*sql*/`
@@ -16,21 +22,22 @@ export default async function Page() {
     join entries e on di.entry_id = e.id
     order by di.image_day desc
     limit 1
-  `) as { image_url: string; value_text: string; submitted_at: string | Date }[];
+  `) as EntryRow[];
 
   const imageUrl = rows[0]?.image_url;
   const userValue = rows[0]?.value_text;
-  const submittedAtRaw = rows[0]?.submitted_at as unknown; // could be string | Date | undefined
+  const submittedAtRaw = rows[0]?.submitted_at;
 
   // Robust timestamp parse -> pretty NY time
   let submittedPretty: string | null = null;
   if (submittedAtRaw) {
-    const iso =
-      typeof submittedAtRaw === 'string'
-        ? submittedAtRaw
-        : typeof (submittedAtRaw as any)?.toISOString === 'function'
-        ? (submittedAtRaw as Date).toISOString()
-        : null;
+    let iso: string | null = null;
+
+    if (typeof submittedAtRaw === 'string') {
+      iso = submittedAtRaw;
+    } else if (submittedAtRaw instanceof Date) {
+      iso = submittedAtRaw.toISOString();
+    }
 
     if (iso) {
       submittedPretty = DateTime.fromISO(iso, { zone: 'utc' })
@@ -77,7 +84,7 @@ export default async function Page() {
             priority
           />
           {userValue && (
-            <p className="text-center text-gray-400"> {/* lighter = more white */}
+            <p className="text-center text-gray-300"> {/* lighter = closer to white */}
               “{userValue}”
               {submittedPretty && (
                 <>
