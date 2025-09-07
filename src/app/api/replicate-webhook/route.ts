@@ -47,24 +47,21 @@ export async function POST(req: Request) {
     }
     const buffer = Buffer.from(await imgResp.arrayBuffer());
 
-    // Upload to Vercel Blob (public)
+    /// Upload to Vercel Blob (public) with a unique filename each time
     const blob = await put(`daily/${imageDay}.png`, buffer, {
       access: "public",
       contentType: "image/png",
-      addRandomSuffix: false,
-      allowOverwrite: true,
+      addRandomSuffix: true,   // 👈 different URL every run
     });
 
-    // Persist to Postgres (idempotent on image_day)
-    const sql = neon(process.env.DATABASE_URL!);
-    const promptUsed = payload.input?.prompt ?? "";
+    // Upsert so the *same* row for the day points to the newest URL
     await sql/*sql*/`
       insert into daily_images (image_day, entry_id, prompt_used, image_url)
       values (${imageDay}, ${entryId}, ${promptUsed}, ${blob.url})
       on conflict (image_day) do update
         set entry_id = excluded.entry_id,
-          prompt_used = excluded.prompt_used,
-          image_url = excluded.image_url
+            prompt_used = excluded.prompt_used,
+            image_url = excluded.image_url
     `;
 
     // 🔄 Make the homepage show the new image immediately
