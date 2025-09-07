@@ -52,6 +52,7 @@ export async function POST(req: Request) {
       access: "public",
       contentType: "image/png",
       addRandomSuffix: false,
+      allowOverwrite: true,
     });
 
     // Persist to Postgres (idempotent on image_day)
@@ -60,7 +61,10 @@ export async function POST(req: Request) {
     await sql/*sql*/`
       insert into daily_images (image_day, entry_id, prompt_used, image_url)
       values (${imageDay}, ${entryId}, ${promptUsed}, ${blob.url})
-      on conflict (image_day) do nothing
+      on conflict (image_day) do update
+        set entry_id = excluded.entry_id,
+          prompt_used = excluded.prompt_used,
+          image_url = excluded.image_url
     `;
 
     // 🔄 Make the homepage show the new image immediately
