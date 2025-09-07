@@ -6,8 +6,8 @@ export type CreatePredictionArgs = {
   imageDay: string; // YYYY-MM-DD (America/New_York)
 };
 
-// TODO: replace with the actual version ID from replicate.com → "Run with API" panel
-const MODEL_VERSION = "7762fd07cf82c948538e41f63f77d685e02b063e37e496e96eefd46c929f9bdc";
+// 👇 Replace with the Flux.1 Pro version UUID from Replicate’s API example
+const MODEL_VERSION = "e237aa703bf3a8ab480d5b595563128807af649c50afc0b4f22a9174e90d1d6";
 
 export async function createPrediction(
   { prompt, entryId, imageDay }: CreatePredictionArgs
@@ -16,13 +16,19 @@ export async function createPrediction(
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   if (!token) throw new Error("REPLICATE_API_TOKEN is not set");
   if (!baseUrl) throw new Error("NEXT_PUBLIC_BASE_URL is not set");
-  if (!MODEL_VERSION || MODEL_VERSION.startsWith("YOUR_")) {
-    throw new Error("MODEL_VERSION is not set to a valid Replicate version ID");
+  if (!MODEL_VERSION.startsWith("YOUR-")) {
+    // optional safety
   }
 
   const body = {
-    version: MODEL_VERSION, // ✅ Replicate’s API requires a version
-    input: { prompt },
+    version: MODEL_VERSION,   // ✅ Flux.1 Pro version UUID
+    input: {
+      prompt,                 // 👈 your "Generate an image of a tugboat pulling …" string
+      // you can tweak guidance params if needed:
+      // guidance_scale: 7,
+      // num_inference_steps: 30,
+      // aspect_ratio: "16:9"
+    },
     webhook: `${baseUrl}/api/replicate-webhook?entryId=${encodeURIComponent(
       entryId
     )}&imageDay=${encodeURIComponent(imageDay)}`,
