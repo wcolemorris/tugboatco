@@ -69,7 +69,7 @@ export default async function Page() {
 
       {alreadySubmitted && (
         <p className="italic text-gray-600">
-          Thanks for tuggin'. Check back tomorrow to see what we're pulling.
+          Thanks for tugging. Check back tomorrow to see what gets towed next.
         </p>
       )}
 
