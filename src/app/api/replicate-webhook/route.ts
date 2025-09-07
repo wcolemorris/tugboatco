@@ -1,4 +1,3 @@
-// src/app/api/replicate-webhook/route.ts
 import { NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 import { neon } from "@neondatabase/serverless";
@@ -30,7 +29,7 @@ export async function POST(req: Request) {
 
     const payload = (await req.json()) as ReplicateWebhookPayload;
 
-    // Optional: ignore non-completed events defensively
+    // Ignore events that aren't finished
     if (payload.status && payload.status !== "succeeded" && payload.status !== "completed") {
       return NextResponse.json({ ok: true, msg: `ignored status ${payload.status}` });
     }
@@ -47,14 +46,16 @@ export async function POST(req: Request) {
     }
     const buffer = Buffer.from(await imgResp.arrayBuffer());
 
-    /// Upload to Vercel Blob (public) with a unique filename each time
+    // Upload to Vercel Blob (new URL every run)
     const blob = await put(`daily/${imageDay}.png`, buffer, {
       access: "public",
       contentType: "image/png",
-      addRandomSuffix: true,   // 👈 different URL every run
+      addRandomSuffix: true, // 👈 ensures fresh URL
     });
 
-    // Upsert so the *same* row for the day points to the newest URL
+    // Persist to Postgres (create client here)
+    const sql = neon(process.env.DATABASE_URL!);
+    const promptUsed = payload.input?.prompt ?? "";
     await sql/*sql*/`
       insert into daily_images (image_day, entry_id, prompt_used, image_url)
       values (${imageDay}, ${entryId}, ${promptUsed}, ${blob.url})
@@ -64,7 +65,7 @@ export async function POST(req: Request) {
             image_url = excluded.image_url
     `;
 
-    // 🔄 Make the homepage show the new image immediately
+    // Refresh homepage so it shows the new image
     revalidatePath("/");
 
     return NextResponse.json({ ok: true, stored: blob.url });
