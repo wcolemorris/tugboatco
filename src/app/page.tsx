@@ -78,7 +78,7 @@ export default async function Page() {
           {submittedYesterday && (
             <input
               name="artist"
-              placeholder="Artist (perk for yesterday’s tug!)"
+              placeholder="Artist&apos;s name (returning captains only)"
               className="border rounded p-2"
             />
           )}
