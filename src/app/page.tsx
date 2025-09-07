@@ -53,7 +53,7 @@ export default async function Page() {
   return (
     <main className="mx-auto max-w-xl p-6 space-y-6">
       <h1 className="text-3xl font-bold">Tugboat.co</h1>
-      <p>Enter anything. Each day, we&apos;ll randomly pick what gets tugged next.</p>
+      <p>Enter anything for a chance to pick what gets tugged next.</p>
 
       {!alreadySubmitted && (
         <form action={saveEntry} className="flex flex-col gap-3 max-w-xl">
@@ -69,7 +69,7 @@ export default async function Page() {
 
       {alreadySubmitted && (
         <p className="italic text-gray-600">
-          Thanks for tugging. Check back tomorrow to see what gets towed next.
+          Thanks for tugging. Check back tomorrow to see we&apos;re pulling and tug again.
         </p>
       )}
 
