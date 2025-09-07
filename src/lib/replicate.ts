@@ -7,7 +7,7 @@ export type CreatePredictionArgs = {
 };
 
 // 👇 Replace with the Flux.1 Pro version UUID from Replicate’s API example
-const MODEL_VERSION = "e237aa703bf3a8ab480d5b595563128807af649c50afc0b4f22a9174e90d1d6";
+const MODEL_VERSION = "black-forest-labs/flux-pro:1e237aa703bf3a8ab480d5b595563128807af649c50afc0b4f22a9174e90d1d6";
 
 export async function createPrediction(
   { prompt, entryId, imageDay }: CreatePredictionArgs
