@@ -82,8 +82,11 @@ export default async function Page() {
             <video
               src={imageUrl}
               className="w-full h-auto rounded"
-              controls
-              playsInline
+              autoPlay      // ⬅️ start playing immediately
+              muted         // ⬅️ required for autoplay in most browsers
+              loop          // ⬅️ optional: keep looping
+              playsInline   // ⬅️ important for iOS Safari
+              controls      // ⬅️ keep controls visible
               preload="metadata"
             />
           ) : (
