@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 
 export default function DelayedReveal({
-  delayMs = 5000,
+  delayMs = 3000,
   children,
 }: {
   delayMs?: number;
