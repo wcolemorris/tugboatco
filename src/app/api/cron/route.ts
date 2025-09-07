@@ -32,12 +32,17 @@ export async function GET() {
 
     // Build the Stable Diffusion prompt
     const cleaned = value_text.trim().replace(/\s+/g, " ");
-    const finalPrompt = `Please generate an image of a tugboat that is dragging ${cleaned} behind it in tow`.slice(0, 300);
+    const base = `Generate an image of a sturdy tugboat towing ${cleaned} behind it.
+    The tugboat is in the foreground, starboard side visible.
+    A thick tow rope connects the stern of the tugboat to ${cleaned}, which is fully visible behind the boat.
+    Square shot, 1:1, daylight on calm water, detailed water wake and rope tension.
+    Humorous, whimsical, vibrant colors, sharp focus, high detail.`;
 
+    const finalPrompt = base.slice(0, 900); // generous cap
     await createPrediction({
       prompt: finalPrompt,
       entryId: id,
-      imageDay: targetDay, // pass through to webhook
+      imageDay: targetDay,
     });
 
     return NextResponse.json({ ok: true, day: targetDay, startedForEntry: id });

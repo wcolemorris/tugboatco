@@ -21,18 +21,17 @@ export async function createPrediction(
   }
 
   const body = {
-    version: MODEL_VERSION,   // ✅ Flux.1 Pro version UUID
+    version: MODEL_VERSION,
     input: {
-      prompt,                 // 👈 your "Generate an image of a tugboat pulling …" string
-      // you can tweak guidance params if needed:
-      // guidance_scale: 7,
-      // num_inference_steps: 30,
-      // aspect_ratio: "16:9"
+      prompt,
+      negative_prompt:
+        "blurry, low-res, extra boats, multiple ropes, disconnected rope, cropped subject, text, watermark, logo",
+      aspect_ratio: "1:1",
+      num_inference_steps: 36,
+      guidance_scale: 8
     },
-    webhook: `${baseUrl}/api/replicate-webhook?entryId=${encodeURIComponent(
-      entryId
-    )}&imageDay=${encodeURIComponent(imageDay)}`,
-    webhook_events_filter: ["completed"],
+    webhook: `${baseUrl}/api/replicate-webhook?entryId=${encodeURIComponent(entryId)}&imageDay=${encodeURIComponent(imageDay)}`,
+    webhook_events_filter: ["completed"]
   };
 
   const res = await fetch("https://api.replicate.com/v1/predictions", {
