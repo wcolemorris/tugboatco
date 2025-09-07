@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { DateTime } from 'luxon';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 type EntryRow = {
   image_url: string;
@@ -13,8 +14,7 @@ type EntryRow = {
 };
 
 export default async function Page() {
-  // Fetch latest image + the entry that generated it
-  const rows = (await sql/*sql*/`
+  const sqlRows = (await sql/*sql*/`
     select di.image_url,
            e.value_text,
            e.submitted_at
@@ -24,21 +24,16 @@ export default async function Page() {
     limit 1
   `) as EntryRow[];
 
-  const imageUrl = rows[0]?.image_url;
-  const userValue = rows[0]?.value_text;
-  const submittedAtRaw = rows[0]?.submitted_at;
+  const imageUrl = sqlRows[0]?.image_url;
+  const userValue = sqlRows[0]?.value_text;
+  const submittedAtRaw = sqlRows[0]?.submitted_at;
 
-  // Robust timestamp parse -> pretty NY time
+  // Pretty timestamp (NY time), robust to string | Date
   let submittedPretty: string | null = null;
   if (submittedAtRaw) {
     let iso: string | null = null;
-
-    if (typeof submittedAtRaw === 'string') {
-      iso = submittedAtRaw;
-    } else if (submittedAtRaw instanceof Date) {
-      iso = submittedAtRaw.toISOString();
-    }
-
+    if (typeof submittedAtRaw === 'string') iso = submittedAtRaw;
+    else if (submittedAtRaw instanceof Date) iso = submittedAtRaw.toISOString();
     if (iso) {
       submittedPretty = DateTime.fromISO(iso, { zone: 'utc' })
         .setZone('America/New_York')
@@ -46,11 +41,11 @@ export default async function Page() {
     }
   }
 
-  const todayNY = DateTime.now().setZone('America/New_York').toFormat('yyyy-LL-dd'); // ✅ string
+  const todayNY = DateTime.now().setZone('America/New_York').toFormat('yyyy-LL-dd');
   const submittedDay = (await cookies()).get('submitted_day')?.value;
   const alreadySubmitted = submittedDay === todayNY;
 
-  // Detect if the media is a video (mp4/webm), allowing for querystrings
+  // Detect if the media is a video (allowing querystrings)
   const isVideo = !!imageUrl && /\.(mp4|webm)(\?|$)/i.test(imageUrl);
 
   return (
@@ -78,29 +73,42 @@ export default async function Page() {
 
       {imageUrl && (
         <div className="space-y-3">
-          {isVideo ? (
-            <video
-              src={imageUrl}
-              className="w-full h-auto rounded"
-              autoPlay      // ⬅️ start playing immediately
-              muted         // ⬅️ required for autoplay in most browsers
-              loop          // ⬅️ optional: keep looping
-              playsInline   // ⬅️ important for iOS Safari
-              controls      // ⬅️ keep controls visible
-              preload="metadata"
-            />
+          {alreadySubmitted ? (
+            // Reveal media after user has submitted today
+            isVideo ? (
+              <video
+                src={imageUrl}
+                className="w-full h-auto rounded"
+                autoPlay
+                muted
+                loop
+                playsInline
+                controls
+                preload="metadata"
+              />
+            ) : (
+              <Image
+                src={imageUrl}
+                alt="Daily image"
+                width={1200}
+                height={800}
+                className="w-full h-auto rounded"
+                priority
+              />
+            )
           ) : (
-            <Image
-              src={imageUrl}
-              alt="Daily image"
-              width={1200}
-              height={800}
-              className="w-full h-auto rounded"
-              priority
-            />
+            // Placeholder “sponsor” box until submission
+            <div className="w-full rounded border bg-gray-50 p-6 text-center">
+              <p className="font-medium">
+                Submit your tug to reveal today&apos;s pull.
+              </p>
+              <p className="mt-2 text-sm text-gray-600">
+                Sponsored by the National Maritime Safety Association
+              </p>
+            </div>
           )}
 
-          {userValue && (
+          {alreadySubmitted && userValue && (
             <p className="text-center text-gray-300">
               “{userValue}”
               {submittedPretty && (
