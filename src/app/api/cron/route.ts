@@ -32,7 +32,7 @@ export async function GET() {
 
     // Build the Stable Diffusion prompt
     const cleaned = value_text.trim().replace(/\s+/g, " ");
-    const finalPrompt = `Generate an image of a tugboat pulling ${cleaned}`.slice(0, 300);
+    const finalPrompt = `Generate your interpretation of a tugboat that is towing behind it ${cleaned}`.slice(0, 300);
 
     await createPrediction({
       prompt: finalPrompt,
