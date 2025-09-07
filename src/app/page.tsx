@@ -50,6 +50,9 @@ export default async function Page() {
   const submittedDay = (await cookies()).get('submitted_day')?.value;
   const alreadySubmitted = submittedDay === todayNY;
 
+  // Detect if the media is a video (mp4/webm), allowing for querystrings
+  const isVideo = !!imageUrl && /\.(mp4|webm)(\?|$)/i.test(imageUrl);
+
   return (
     <main className="mx-auto max-w-xl p-6 space-y-6">
       <h1 className="text-3xl font-bold">Tugboat.co</h1>
@@ -75,16 +78,27 @@ export default async function Page() {
 
       {imageUrl && (
         <div className="space-y-3">
-          <Image
-            src={imageUrl}
-            alt="Daily image"
-            width={1200}
-            height={800}
-            className="w-full h-auto rounded"
-            priority
-          />
+          {isVideo ? (
+            <video
+              src={imageUrl}
+              className="w-full h-auto rounded"
+              controls
+              playsInline
+              preload="metadata"
+            />
+          ) : (
+            <Image
+              src={imageUrl}
+              alt="Daily image"
+              width={1200}
+              height={800}
+              className="w-full h-auto rounded"
+              priority
+            />
+          )}
+
           {userValue && (
-            <p className="text-center text-gray-300"> {/* lighter = closer to white */}
+            <p className="text-center text-gray-300">
               “{userValue}”
               {submittedPretty && (
                 <>

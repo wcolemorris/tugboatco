@@ -6,8 +6,10 @@ export type CreatePredictionArgs = {
   imageDay: string; // YYYY-MM-DD (America/New_York)
 };
 
-// 👇 Replace with the Flux.1 Pro version UUID from Replicate’s API example
-const MODEL_VERSION = "black-forest-labs/flux-pro:1e237aa703bf3a8ab480d5b595563128807af649c50afc0b4f22a9174e90d1d6";
+// ✅ WAN 2.2 T2V Fast version UUID (from the model's "Run with API" page)
+// You can replace this any time with a newer version UUID from the same page.
+const MODEL_VERSION =
+  "920bea47c60299896482c74ddd32df873d0e392a88a08595b3d4f56eaf47b6ef";
 
 export async function createPrediction(
   { prompt, entryId, imageDay }: CreatePredictionArgs
@@ -16,22 +18,31 @@ export async function createPrediction(
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   if (!token) throw new Error("REPLICATE_API_TOKEN is not set");
   if (!baseUrl) throw new Error("NEXT_PUBLIC_BASE_URL is not set");
-  if (!MODEL_VERSION.startsWith("YOUR-")) {
-    // optional safety
-  }
+
+  // 👇 Commonly supported inputs for WAN 2.2 T2V Fast (check the API page for the exact schema)
+  const input = {
+    prompt,
+    // Helpful guardrails for your use case:
+    negative_prompt:
+      "extra boats, multiple tugboats, multiple of the same item being towed, disconnected rope, cropped item being towed, text, watermark, blurry, low-res",
+    // Many WAN T2V variants accept these fields (see model API docs)
+    // If a field isn't supported by your chosen version, just remove it.
+    aspect_ratio: "16:9",
+    // duration in seconds (some versions accept 'duration')
+    duration: 8,
+    // frames per second (some versions accept 'fps')
+    fps: 16,
+    // guidance_scale (if supported; otherwise remove)
+    guidance_scale: 8,
+  };
 
   const body = {
-    version: MODEL_VERSION,
-    input: {
-      prompt,
-      negative_prompt:
-        "blurry, low-res, extra boats, multiple ropes, disconnected rope, cropped subject, text, watermark, logo",
-      aspect_ratio: "1:1",
-      num_inference_steps: 36,
-      guidance_scale: 8
-    },
-    webhook: `${baseUrl}/api/replicate-webhook?entryId=${encodeURIComponent(entryId)}&imageDay=${encodeURIComponent(imageDay)}`,
-    webhook_events_filter: ["completed"]
+    version: MODEL_VERSION, // ✅ required by Replicate
+    input,
+    webhook: `${baseUrl}/api/replicate-webhook?entryId=${encodeURIComponent(
+      entryId
+    )}&imageDay=${encodeURIComponent(imageDay)}`,
+    webhook_events_filter: ["completed"],
   };
 
   const res = await fetch("https://api.replicate.com/v1/predictions", {
