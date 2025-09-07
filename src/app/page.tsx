@@ -7,7 +7,7 @@ import { DateTime } from 'luxon';
 export const dynamic = 'force-dynamic';
 
 export default async function Page() {
-  // ⬇️ Pull the latest image *and* the entry that generated it
+  // Fetch latest image + the entry that generated it
   const rows = (await sql/*sql*/`
     select di.image_url,
            e.value_text,
@@ -16,16 +16,28 @@ export default async function Page() {
     join entries e on di.entry_id = e.id
     order by di.image_day desc
     limit 1
-  `) as { image_url: string; value_text: string; submitted_at: string }[];
+  `) as { image_url: string; value_text: string; submitted_at: string | Date }[];
 
   const imageUrl = rows[0]?.image_url;
   const userValue = rows[0]?.value_text;
-  const submittedAt = rows[0]?.submitted_at;
+  const submittedAtRaw = rows[0]?.submitted_at as unknown; // could be string | Date | undefined
 
-  // Nice timestamp in New York time
-  const submittedPretty = submittedAt
-    ? DateTime.fromISO(submittedAt, { zone: 'America/New_York' }).toFormat('MMM d, yyyy h:mm a')
-    : null;
+  // Robust timestamp parse -> pretty NY time
+  let submittedPretty: string | null = null;
+  if (submittedAtRaw) {
+    const iso =
+      typeof submittedAtRaw === 'string'
+        ? submittedAtRaw
+        : typeof (submittedAtRaw as any)?.toISOString === 'function'
+        ? (submittedAtRaw as Date).toISOString()
+        : null;
+
+    if (iso) {
+      submittedPretty = DateTime.fromISO(iso, { zone: 'utc' })
+        .setZone('America/New_York')
+        .toFormat('MMM d, yyyy h:mm a');
+    }
+  }
 
   const todayNY = DateTime.now().setZone('America/New_York').toFormat('yyyy-LL-dd'); // ✅ string
   const submittedDay = (await cookies()).get('submitted_day')?.value;
@@ -65,7 +77,7 @@ export default async function Page() {
             priority
           />
           {userValue && (
-            <p className="text-center text-gray-700">
+            <p className="text-center text-gray-400"> {/* lighter = more white */}
               “{userValue}”
               {submittedPretty && (
                 <>
