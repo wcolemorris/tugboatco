@@ -34,11 +34,12 @@ export async function GET() {
     const cleaned = value_text.trim().replace(/\s+/g, " ");
     const base = `
     A single sturdy tugboat, starboard side visible, moves steadily from left to right across calm ocean water.
-    At the beginning (0–2 seconds): only the tugboat is visible in the wide shot.
+    At the beginning (0–2 seconds): only the tugboat is visible in the wide shot. No other objects are visible.
     From 2–5 seconds: the object "${cleaned}" enters the frame from the left, always positioned behind the tugboat.
     A thick tow rope directly connects the stern of the tugboat to "${cleaned}" throughout the video.
     There is nothing connected to the bow of the tugboat.
     The object must not appear in front of or beside the tugboat; it must only be behind, following along the same path.
+    If the object "${cleaned}" is sensitive or inappropriate, please replace with something humorous.
     Wide shot, 16:9 aspect ratio, cinematic, humorous, whimsical, vibrant colors, daylight, 5 seconds, 24 fps.`;
 
     const finalPrompt = base.slice(0, 900); // generous cap
