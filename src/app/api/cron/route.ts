@@ -37,6 +37,7 @@ export async function GET() {
     At the beginning (0–2 seconds): only the tugboat is visible in the wide shot.
     From 2–5 seconds: the object "${cleaned}" enters the frame from the left, always positioned behind the tugboat.
     A thick tow rope directly connects the stern of the tugboat to "${cleaned}" throughout the video.
+    There is nothing connected to the bow of the tugboat.
     The object must not appear in front of or beside the tugboat; it must only be behind, following along the same path.
     Wide shot, 16:9 aspect ratio, cinematic, humorous, whimsical, vibrant colors, daylight, 5 seconds, 24 fps.`;
 
