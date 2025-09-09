@@ -23,7 +23,7 @@ export async function createPrediction(
     prompt,
     negative_prompt:
       "extra boats, multiple tugboats, multiple of the same item being towed, disconnected rope, cropped item being towed, text, watermark, blurry, low-res",
-    resolution: "480p",   // ✅ 480p resolution
+    resolution: "1080p",   // ✅ 480p resolution
     duration: 5,          // ✅ 5 seconds
     aspect_ratio: "16:9",
     fps: 24,
