@@ -33,10 +33,12 @@ export async function GET() {
     // Build the Seedance 1 Pro prompt
     const cleaned = value_text.trim().replace(/\s+/g, " ");
     const base = `
-    A single tugboat, starboard side visible, moves steadily from left to right across calm ocean water.
+    A single tugboat, starboard side visible, with the words "USS Wolfgang" painted on the side, moves steadily from left to right across calm ocean water.
     At the beginning (0–2 seconds): only the tugboat is visible in the wide shot. No other objects are visible.
-    From 2–5 seconds: the object "${cleaned}" enters the frame from the left always being pulled behind the tugboat and connected to the stern of the tugboat by a thick tow rope.
-    The object must not appear in front of or beside the tugboat; it must always be pulled behind and connected by the tow rope, following along the same path.
+    From 2–5 seconds: the object "${cleaned}" enters the frame from the left.
+    The object "${cleaned}" is connected to the stern of the tugboat by a thick tow rope.
+    The object "${cleaned}" must not appear in front of or beside the tugboat; it must always be pulled behind along the same path.
+    There should only be one instance of the object "${cleaned}".
     Wide shot, 16:9 aspect ratio, cinematic, humorous, whimsical, vibrant colors, daylight, 5 seconds, 24 fps.`;
 
     const finalPrompt = base.slice(0, 900); // generous cap
