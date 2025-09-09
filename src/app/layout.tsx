@@ -13,10 +13,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Tugboat.co - New Tugs Day",
+  title: "Tugboat.co - New Tugs Daily",
   description: "Submit anything and you might just pick what we pull next.",
   openGraph: {
-    title: "Tugboat.co - New Tug Every Day",
+    title: "Tugboat.co - New Tugs Daily",
     description: "Submit anything and you might just pick what we pull next.",
     url: "https://tugboat.co",
     siteName: "Tugboat.co",
