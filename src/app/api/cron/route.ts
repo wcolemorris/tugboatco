@@ -30,7 +30,7 @@ export async function GET() {
 
     const { id, value_text } = rows[0];
 
-    // Build the Stable Diffusion prompt
+    // Build the Seedance 1 Pro prompt
     const cleaned = value_text.trim().replace(/\s+/g, " ");
     const base = `
     A single sturdy tugboat, starboard side visible, moves steadily from left to right across calm ocean water.
@@ -39,7 +39,6 @@ export async function GET() {
     A thick tow rope directly connects the stern of the tugboat to "${cleaned}" throughout the video.
     There is nothing connected to the bow of the tugboat.
     The object must not appear in front of or beside the tugboat; it must only be behind, following along the same path.
-    If the object "${cleaned}" is sensitive or inappropriate, please replace with something humorous.
     Wide shot, 16:9 aspect ratio, cinematic, humorous, whimsical, vibrant colors, daylight, 5 seconds, 24 fps.`;
 
     const finalPrompt = base.slice(0, 900); // generous cap
