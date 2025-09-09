@@ -33,9 +33,9 @@ export async function GET() {
     // Build the Stable Diffusion prompt
     const cleaned = value_text.trim().replace(/\s+/g, " ");
     const base = `
-    A single sturdy tugboat is towing ${cleaned} across calm ocean water, starboard side visible.
+    A single sturdy tugboat is towing "${cleaned}" across calm ocean water, starboard side visible.
     At the beginning of the video, only the tugboat is visible as it enters the frame from the left.
-    After 2–4 seconds, ${cleaned} is revealed behind the tugboat, connected by a thick tow rope to the stern.
+    After 2–4 seconds, "${cleaned}"" is revealed behind the tugboat, connected by a thick tow rope to the stern.
     The tugboat continues moving toward the right. Only one tugboat should be present.
     Wide shot, cinematic, humorous, whimsical, vibrant colors. 16:9 aspect ratio, 8 seconds, 16 fps, daylight.`;
 

@@ -6,10 +6,9 @@ export type CreatePredictionArgs = {
   imageDay: string; // YYYY-MM-DD (America/New_York)
 };
 
-// ✅ WAN 2.2 T2V Fast version UUID (from the model's "Run with API" page)
-// You can replace this any time with a newer version UUID from the same page.
+// ✅ Seedance-1-Pro version UUID (from Replicate "Run with API" page)
 const MODEL_VERSION =
-  "920bea47c60299896482c74ddd32df873d0e392a88a08595b3d4f56eaf47b6ef";
+  "71486843cf5b0098931fe16dbc3771a611a7004bbb80d3bcbcff51e14e96e7dd";
 
 export async function createPrediction(
   { prompt, entryId, imageDay }: CreatePredictionArgs
@@ -19,25 +18,21 @@ export async function createPrediction(
   if (!token) throw new Error("REPLICATE_API_TOKEN is not set");
   if (!baseUrl) throw new Error("NEXT_PUBLIC_BASE_URL is not set");
 
-  // 👇 Commonly supported inputs for WAN 2.2 T2V Fast (check the API page for the exact schema)
+  // 👇 Inputs for Seedance-1-Pro
   const input = {
     prompt,
-    // Helpful guardrails for your use case:
     negative_prompt:
       "extra boats, multiple tugboats, multiple of the same item being towed, disconnected rope, cropped item being towed, text, watermark, blurry, low-res",
-    // Many WAN T2V variants accept these fields (see model API docs)
-    // If a field isn't supported by your chosen version, just remove it.
+    resolution: "480p",   // ✅ 480p resolution
+    duration: 5,          // ✅ 5 seconds
     aspect_ratio: "16:9",
-    // duration in seconds (some versions accept 'duration')
-    duration: 8,
-    // frames per second (some versions accept 'fps')
-    fps: 16,
-    // guidance_scale (if supported; otherwise remove)
-    guidance_scale: 8,
+    fps: 24,
+    camera_fixed: false,
+    seed: Math.floor(Math.random() * 9999999),
   };
 
   const body = {
-    version: MODEL_VERSION, // ✅ required by Replicate
+    version: MODEL_VERSION,
     input,
     webhook: `${baseUrl}/api/replicate-webhook?entryId=${encodeURIComponent(
       entryId
