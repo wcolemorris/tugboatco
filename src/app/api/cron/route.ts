@@ -33,10 +33,12 @@ export async function GET() {
     // Build the Stable Diffusion prompt
     const cleaned = value_text.trim().replace(/\s+/g, " ");
     const base = `
-    A single sturdy tugboat, starboard side visible, enters the frame from the left.
-    The tugboat is moving across the frame through calm ocean waters toward the right and is towing something behind it that is out of frame. 
-    After 2 seconds, "${cleaned}" enters the frame from the left being towed by the tugboat and connected to the tugboat's stern by a thick tow rope.
-    Wide shot, cinematic, humorous, whimsical, vibrant colors. 16:9 aspect ratio, 5 seconds, 24 fps, daylight.`;
+    A single sturdy tugboat, starboard side visible, moves steadily from left to right across calm ocean water.
+    At the beginning (0–2 seconds): only the tugboat is visible in the wide shot.
+    From 2–5 seconds: the object "${cleaned}" enters the frame from the left, always positioned behind the tugboat.
+    A thick tow rope directly connects the stern of the tugboat to "${cleaned}" throughout the video.
+    The object must not appear in front of or beside the tugboat; it must only be behind, following along the same path.
+    Wide shot, 16:9 aspect ratio, cinematic, humorous, whimsical, vibrant colors, daylight, 5 seconds, 24 fps.`;
 
     const finalPrompt = base.slice(0, 900); // generous cap
     await createPrediction({
