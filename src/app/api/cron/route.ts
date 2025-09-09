@@ -39,7 +39,7 @@ export async function GET() {
     The object is connected to the rear of the tugboat by a thick tow rope and is being pulled behind the tugboat along the same path.
     The object must not appear in front of or beside the tugboat.
     There should only be one instance of the object.
-    Wide shot, 16:9 aspect ratio, cinematic, humorous, whimsical, vibrant colors, daylight, 5 seconds, 24 fps.`;
+    Wide shot, 16:9 aspect ratio, cinematic, humorous, vibrant colors, daylight, 5 seconds, 24 fps.`;
 
     const finalPrompt = base.slice(0, 900); // generous cap
     await createPrediction({
