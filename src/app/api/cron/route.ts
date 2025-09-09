@@ -36,9 +36,9 @@ export async function GET() {
     A single tugboat, starboard side visible, with the words "USS Wolfgang" painted on the side, moves steadily from left to right across calm ocean water.
     At the beginning (0–2 seconds): only the tugboat is visible in the wide shot. No other objects are visible.
     From 2–5 seconds: the object "${cleaned}" enters the frame from the left.
-    The object "${cleaned}" is connected to the stern of the tugboat by a thick tow rope.
-    The object "${cleaned}" must not appear in front of or beside the tugboat; it must always be pulled behind along the same path.
-    There should only be one instance of the object "${cleaned}".
+    The object is connected to the rear of the tugboat by a thick tow rope and is being pulled behind the tugboat along the same path.
+    The object must not appear in front of or beside the tugboat.
+    There should only be one instance of the object.
     Wide shot, 16:9 aspect ratio, cinematic, humorous, whimsical, vibrant colors, daylight, 5 seconds, 24 fps.`;
 
     const finalPrompt = base.slice(0, 900); // generous cap
