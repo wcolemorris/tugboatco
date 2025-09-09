@@ -33,11 +33,10 @@ export async function GET() {
     // Build the Stable Diffusion prompt
     const cleaned = value_text.trim().replace(/\s+/g, " ");
     const base = `
-    A single sturdy tugboat is towing "${cleaned}" across calm ocean water, starboard side visible.
-    At the beginning of the video, only the tugboat is visible as it enters the frame from the left.
-    After 2–4 seconds, "${cleaned}"" is revealed behind the tugboat, connected by a thick tow rope to the stern.
-    The tugboat continues moving toward the right. Only one tugboat should be present.
-    Wide shot, cinematic, humorous, whimsical, vibrant colors. 16:9 aspect ratio, 8 seconds, 16 fps, daylight.`;
+    A single sturdy tugboat, starboard side visible, enters the frame from the left.
+    The tugboat is moving across the frame through calm ocean waters toward the right and is towing something behind it that is out of frame. 
+    After 2 seconds, "${cleaned}" enters the frame from the left being towed by the tugboat and connected to the tugboat's stern by a thick tow rope.
+    Wide shot, cinematic, humorous, whimsical, vibrant colors. 16:9 aspect ratio, 5 seconds, 24 fps, daylight.`;
 
     const finalPrompt = base.slice(0, 900); // generous cap
     await createPrediction({
