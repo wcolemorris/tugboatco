@@ -22,8 +22,8 @@ export async function createPrediction(
   const input = {
     prompt,
     negative_prompt:
-      "extra boats, multiple tugboats, multiple of the same item being towed, disconnected rope, cropped item being towed, text, watermark, blurry, low-res",
-    resolution: "1080p",   // ✅ 480p resolution
+      "object in front, object beside tugboat, multiple objects, missing rope, rope disconnected, cropped rope, extra tugboats, rope in front of tugboat, multiple ropes, text, watermark, blurry, low-res, misspelling of tugboat.co",
+    resolution: "480p",   // ✅ 480p resolution
     duration: 5,          // ✅ 5 seconds
     aspect_ratio: "16:9",
     fps: 24,
