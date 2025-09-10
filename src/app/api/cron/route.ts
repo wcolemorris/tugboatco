@@ -32,22 +32,17 @@ export async function GET() {
 
     // Build the Seedance 1 Pro prompt
     const cleaned = value_text.trim().replace(/\s+/g, " ");
-    const base = `
-    A single sturdy tugboat with "tugboat.co" painted clearly on its starboard hull moves LEFT-TO-RIGHT across calm ocean water. Wide, static camera shot. The tugboat travels horizontally from LEFT EDGE to RIGHT EDGE of frame. A thick tow rope extends directly backward from the stern.
-
-    TIMING:
+    const base = `A single tugboat with "tugboat.co" painted on its starboard hull moves LEFT-TO-RIGHT across calm ocean water. Wide, static camera shot. The tugboat travels horizontally from LEFT EDGE to RIGHT EDGE of frame. A thick tow rope extends directly backward from the stern. TIMING:
     - 0.0–2.0s: ONLY the tugboat is visible. The rope extends backward to the LEFT EDGE of the frame. The object "${cleaned}" is completely OFF-SCREEN.
     - 2.0s: The object "${cleaned}" FIRST APPEARS at the LEFT EDGE, attached to the rope.
     - 2.0–5.0s: The object "${cleaned}" is pulled fully INTO FRAME, always trailing directly BEHIND the tugboat at a fixed distance.
-
     CONSTRAINTS:
     - Exactly ONE object "${cleaned}"
     - Object NEVER beside or ahead of tugboat
     - Object ALWAYS directly behind tugboat, connected by rope
     - Continuous horizontal movement only (no vertical drifting)
-
     STYLE:
-    16:9 aspect ratio, 5 seconds, 24 fps, bright daylight, cinematic, whimsical, vibrant ocean blues.`;
+    - Bright daylight, cinematic, whimsical, vibrant ocean blues.`;
 
     const finalPrompt = base.slice(0, 900); // generous cap
     await createPrediction({
