@@ -33,12 +33,21 @@ export async function GET() {
     // Build the Seedance 1 Pro prompt
     const cleaned = value_text.trim().replace(/\s+/g, " ");
     const base = `
-    A single tugboat, starboard side visible, with the text "tugboat.co" painted on the side, moves steadily from left to right across calm ocean water.
-    At the beginning (0–2 seconds): only the tugboat is visible in the wide shot. No other objects are visible.
-    From 2–5 seconds: the object "${cleaned}" enters the from the left being pulled behind the tugboat along the same path by a thick tow rope.
-    The object must not appear in front of or beside the tugboat.
-    There should only be one instance of the object.
-    Wide shot, 16:9 aspect ratio, cinematic, humorous, vibrant colors, daylight, 5 seconds, 24 fps.`;
+    A single sturdy tugboat with "tugboat.co" painted clearly on its starboard hull moves LEFT-TO-RIGHT across calm ocean water. Wide, static camera shot. The tugboat travels horizontally from LEFT EDGE to RIGHT EDGE of frame. A thick tow rope extends directly backward from the stern.
+
+    TIMING:
+    - 0.0–2.0s: ONLY the tugboat is visible. The rope extends backward to the LEFT EDGE of the frame. The object "${cleaned}" is completely OFF-SCREEN.
+    - 2.0s: The object "${cleaned}" FIRST APPEARS at the LEFT EDGE, attached to the rope.
+    - 2.0–5.0s: The object "${cleaned}" is pulled fully INTO FRAME, always trailing directly BEHIND the tugboat at a fixed distance.
+
+    CONSTRAINTS:
+    - Exactly ONE object "${cleaned}"
+    - Object NEVER beside or ahead of tugboat
+    - Object ALWAYS directly behind tugboat, connected by rope
+    - Continuous horizontal movement only (no vertical drifting)
+
+    STYLE:
+    16:9 aspect ratio, 5 seconds, 24 fps, bright daylight, cinematic, whimsical, vibrant ocean blues.`;
 
     const finalPrompt = base.slice(0, 900); // generous cap
     await createPrediction({
