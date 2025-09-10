@@ -22,7 +22,7 @@ export async function createPrediction(
   const input = {
     prompt,
     negative_prompt:
-      "object in front of tugboat, object beside tugboat, multiple objects, missing rope, rope disconnected, cropped rope, extra tugboats, rope in front of tugboat, multiple ropes, tugboat facing left, object disconnected from tugboat, object moving independently, watermark, blurry, low-res, misspelling of tugboat.co",
+      "object floating in air, object above water, object in front of tugboat, object beside tugboat, object not aligned behind tugboat, multiple objects, duplicate objects, object not touching water, object moving on its own, object not pulled by rope, missing rope, rope disconnected, rope cut, rope in front of tugboat, multiple ropes, no rope visible, tugboat facing left, tugboat mirrored, extra tugboats, duplicate tugboats, watermark, text artifacts, wrong text, misspelled tugboat.co, blurry, pixelated, low quality",
     resolution: "480p",   // ✅ 480p resolution
     duration: 5,          // ✅ 5 seconds
     aspect_ratio: "16:9",
