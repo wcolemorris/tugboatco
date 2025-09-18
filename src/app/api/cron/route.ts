@@ -48,7 +48,7 @@ export async function GET() {
     // - Object NEVER beside or ahead of tugboat
     // `;
 
-    const base = `From 0-2 seconds, a sturdy tugboat with "tugboat.co" painted on its hull drives across calm ocean water. The tugboat has a thick tow rope connected to the rear of the tugboat that is pulling an object behind the tugboat out of the frame. There is nothing connected to the front of the tugboat. After 2 seconds, the tugboat pulls "${cleaned}" through the water into the frame of view by the tow rope along the same path as the tugboat.`;
+    const base = `A sturdy tugboat with "tugboat.co" painted on its hull drives across calm ocean water. From 0-2 seconds, only the tugboat is visible. It appears to be pulling an object located outside of the frame of view by a thick tow rope connected to the tugboat's rear. From 2-5 seconds, the tugboat pulls "${cleaned}" into the frame of view by the tow rope along the same path at a fixed distance behind the tugboat.`;
 
     const finalPrompt = base.slice(0, 900); // generous cap
     await createPrediction({
